@@ -309,6 +309,15 @@ function writeConfigs(argv: any) {
             simpleConfig.node["data-availability"]["rpc-aggregator"].enable = true
         }
         fs.writeFileSync(path.join(consts.configpath, "sequencer_config.json"), JSON.stringify(simpleConfig))
+
+        let simpleFollowerConfig = JSON.parse(baseConfJSON)
+        simpleFollowerConfig.node.sequencer = false
+        simpleFollowerConfig.node["seq-coordinator"].enable = false
+        simpleFollowerConfig.node["batch-poster"].enable = false
+        simpleFollowerConfig.node.staker.enable = false
+        simpleFollowerConfig.execution["sequencer"].enable = false
+        simpleFollowerConfig.node["delayed-sequencer"].enable = false
+        fs.writeFileSync(path.join(consts.configpath, "sequencer_follower_config.json"), JSON.stringify(simpleFollowerConfig))
     } else {
         let validatorConfig = JSON.parse(baseConfJSON)
         validatorConfig.node.staker.enable = true
@@ -324,7 +333,8 @@ function writeConfigs(argv: any) {
         sequencerConfig.node.sequencer = true
         sequencerConfig.node["seq-coordinator"].enable = true
         sequencerConfig.execution["sequencer"].enable = true
-        sequencerConfig.node["delayed-sequencer"].enable = true
+        sequencerConfig.execution["forwarding-target"] = "null"
+        sequencerConfig.node["delayed-sequencer"].enable = false
         if (argv.timeboost) {
           sequencerConfig.execution.sequencer.dangerous = {};
           sequencerConfig.execution.sequencer.dangerous.timeboost = {
@@ -333,6 +343,15 @@ function writeConfigs(argv: any) {
           };
         }
         fs.writeFileSync(path.join(consts.configpath, "sequencer_config.json"), JSON.stringify(sequencerConfig))
+
+        let sequencerFollowerConfig = JSON.parse(baseConfJSON)
+        sequencerFollowerConfig.node.sequencer = false
+        sequencerFollowerConfig.node["seq-coordinator"].enable = false
+        sequencerFollowerConfig.node["batch-poster"].enable = false
+        sequencerFollowerConfig.node.staker.enable = false
+        sequencerFollowerConfig.execution["sequencer"].enable = false
+        sequencerFollowerConfig.node["delayed-sequencer"].enable = false
+        fs.writeFileSync(path.join(consts.configpath, "sequencer_follower_config.json"), JSON.stringify(sequencerFollowerConfig))
 
         let posterConfig = JSON.parse(baseConfJSON)
         posterConfig.node["seq-coordinator"].enable = true
@@ -356,7 +375,7 @@ function writeConfigs(argv: any) {
     l3Config.node.sequencer = true
     l3Config.execution["sequencer"].enable = true
     l3Config.node["dangerous"]["no-sequencer-coordinator"] = true
-    l3Config.node["delayed-sequencer"].enable = true
+    l3Config.node["delayed-sequencer"].enable = false
     l3Config.node["delayed-sequencer"]["finalize-distance"] = 0
     l3Config.node["delayed-sequencer"]["use-merge-finality"] = false
     l3Config.node["batch-poster"].enable = true
