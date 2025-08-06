@@ -25,7 +25,7 @@ cd "$mydir"
 
 if [[ $# -gt 0 ]] && [[ $1 == "script" ]]; then
     shift
-    docker compose run --rm scripts "$@"
+    docker compose run scripts "$@"
     exit $?
 fi
 
@@ -539,9 +539,9 @@ if $force_init; then
     fi
 
     echo == Funding validator, sequencer and l2owner
-    docker compose run --rm scripts send-l1 --ethamount 1000 --to validator --wait
-    docker compose run --rm scripts send-l1 --ethamount 1000 --to sequencer --wait
-    docker compose run --rm scripts send-l1 --ethamount 1000 --to l2owner --wait
+    docker compose run scripts send-l1 --ethamount 1000 --to validator --wait
+    docker compose run scripts send-l1 --ethamount 1000 --to sequencer --wait
+    docker compose run scripts send-l1 --ethamount 1000 --to l2owner --wait
 
     echo == create l1 traffic
     docker compose run scripts send-l1 --ethamount 1000 --to user_l1user --wait

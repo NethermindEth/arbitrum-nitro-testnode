@@ -333,8 +333,7 @@ function writeConfigs(argv: any) {
         sequencerConfig.node.sequencer = true
         sequencerConfig.node["seq-coordinator"].enable = true
         sequencerConfig.execution["sequencer"].enable = true
-        sequencerConfig.execution["forwarding-target"] = "null"
-        sequencerConfig.node["delayed-sequencer"].enable = false
+        sequencerConfig.node["delayed-sequencer"].enable = true
         if (argv.timeboost) {
           sequencerConfig.execution.sequencer.dangerous = {};
           sequencerConfig.execution.sequencer.dangerous.timeboost = {
@@ -375,7 +374,7 @@ function writeConfigs(argv: any) {
     l3Config.node.sequencer = true
     l3Config.execution["sequencer"].enable = true
     l3Config.node["dangerous"]["no-sequencer-coordinator"] = true
-    l3Config.node["delayed-sequencer"].enable = false
+    l3Config.node["delayed-sequencer"].enable = true
     l3Config.node["delayed-sequencer"]["finalize-distance"] = 0
     l3Config.node["delayed-sequencer"]["use-merge-finality"] = false
     l3Config.node["batch-poster"].enable = true
