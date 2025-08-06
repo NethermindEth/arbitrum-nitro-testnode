@@ -589,7 +589,7 @@ services:
       - redis
 
   nethermind-l2:
-    image: daniilankushin/nethermind-arbitrum:latest
+    image: daniilankushin/nethermind-arbitrum:tanishq
     container_name: nethermind-arbitrum-local
     ports:
       - "20545:20545"
