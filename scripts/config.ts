@@ -309,15 +309,6 @@ function writeConfigs(argv: any) {
             simpleConfig.node["data-availability"]["rpc-aggregator"].enable = true
         }
         fs.writeFileSync(path.join(consts.configpath, "sequencer_config.json"), JSON.stringify(simpleConfig))
-
-        let simpleFollowerConfig = JSON.parse(baseConfJSON)
-        simpleFollowerConfig.node.sequencer = false
-        simpleFollowerConfig.node["seq-coordinator"].enable = false
-        simpleFollowerConfig.node["batch-poster"].enable = false
-        simpleFollowerConfig.node.staker.enable = false
-        simpleFollowerConfig.execution["sequencer"].enable = false
-        simpleFollowerConfig.node["delayed-sequencer"].enable = false
-        fs.writeFileSync(path.join(consts.configpath, "sequencer_follower_config.json"), JSON.stringify(simpleFollowerConfig))
     } else {
         let validatorConfig = JSON.parse(baseConfJSON)
         validatorConfig.node.staker.enable = true
@@ -343,15 +334,6 @@ function writeConfigs(argv: any) {
         }
         fs.writeFileSync(path.join(consts.configpath, "sequencer_config.json"), JSON.stringify(sequencerConfig))
 
-        let sequencerFollowerConfig = JSON.parse(baseConfJSON)
-        sequencerFollowerConfig.node.sequencer = false
-        sequencerFollowerConfig.node["seq-coordinator"].enable = false
-        sequencerFollowerConfig.node["batch-poster"].enable = false
-        sequencerFollowerConfig.node.staker.enable = false
-        sequencerFollowerConfig.execution["sequencer"].enable = false
-        sequencerFollowerConfig.node["delayed-sequencer"].enable = false
-        fs.writeFileSync(path.join(consts.configpath, "sequencer_follower_config.json"), JSON.stringify(sequencerFollowerConfig))
-
         let posterConfig = JSON.parse(baseConfJSON)
         posterConfig.node["seq-coordinator"].enable = true
         posterConfig.node["batch-poster"].enable = true
@@ -360,6 +342,16 @@ function writeConfigs(argv: any) {
         }
         fs.writeFileSync(path.join(consts.configpath, "poster_config.json"), JSON.stringify(posterConfig))
     }
+
+    // Common follower config for both branches
+    let sequencerFollowerConfig = JSON.parse(baseConfJSON)
+    sequencerFollowerConfig.node.sequencer = false
+    sequencerFollowerConfig.node["seq-coordinator"].enable = false
+    sequencerFollowerConfig.node["batch-poster"].enable = false
+    sequencerFollowerConfig.node.staker.enable = false
+    sequencerFollowerConfig.execution["sequencer"].enable = false
+    sequencerFollowerConfig.node["delayed-sequencer"].enable = false
+    fs.writeFileSync(path.join(consts.configpath, "sequencer_follower_config.json"), JSON.stringify(sequencerFollowerConfig))
 
     let l3Config = JSON.parse(baseConfJSON)
     l3Config["parent-chain"].connection.url = argv.l2url
