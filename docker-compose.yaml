@@ -242,7 +242,6 @@ services:
     environment:
       - PR_EXECUTION_MODE=${PR_EXECUTION_MODE:-external}
       - PR_NETH_RPC_CLIENT_URL=http://nethermind-l2:20545
-      - PR_MAX_MESSAGES_TO_DIGEST=100000
     volumes:
       - "./data/seqdata:/home/user/.arbitrum"
       - "./data/l1keystore:/home/user/l1keystore"
@@ -278,7 +277,6 @@ services:
     environment:
       # Vanilla follower configuration
       - PR_OVERRIDE_FORWARDER_URL=ws://sequencer:9642
-      - PR_MAX_MESSAGES_TO_DIGEST=100000
     volumes:
       - "./data/followerdata:/home/user/.arbitrum"
       - "./data/l1keystore:/home/user/l1keystore"
@@ -309,7 +307,6 @@ services:
       - PR_EXECUTION_MODE=${PR_EXECUTION_MODE:-external}
       - PR_NETH_RPC_CLIENT_URL=http://nethermind-l2:20545
       - PR_OVERRIDE_FORWARDER_URL=ws://sequencer:9642
-      - PR_MAX_MESSAGES_TO_DIGEST=100000
     volumes:
       - "./data/followerdata-nethermind:/home/user/.arbitrum"
       - "./data/l1keystore:/home/user/l1keystore"
