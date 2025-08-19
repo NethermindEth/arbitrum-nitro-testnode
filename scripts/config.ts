@@ -717,35 +717,38 @@ export const writeL2DASKeysetConfigCommand = {
 
 function applyLocalOverrides(cfg: any, baseDir: string): any {
     const join = (...p: string[]) => path.join(baseDir, ...p);
+    // Use container paths for Docker services instead of host paths
+    const containerPath = (relativePath: string) => path.posix.join("/", relativePath);
+    
     // Parent chain and chain info
     if (cfg?.["parent-chain"]?.connection) {
-        cfg["parent-chain"].connection.url = "ws://localhost:8546";
+        cfg["parent-chain"].connection.url = "ws://geth:8546";
     }
     if (cfg?.chain) {
-        cfg.chain["info-files"] = [join("data/config/l2_chain_info.json")];
+        cfg.chain["info-files"] = [containerPath("config/l2_chain_info.json")];
     }
     // Wallet keystores
     if (cfg?.node?.staker?.["parent-chain-wallet"]) {
-        cfg.node.staker["parent-chain-wallet"].pathname = join("data/l1keystore");
+        cfg.node.staker["parent-chain-wallet"].pathname = "/home/user/l1keystore";
     }
     if (cfg?.node?.["batch-poster"]?.["parent-chain-wallet"]) {
-        cfg.node["batch-poster"]["parent-chain-wallet"].pathname = join("data/l1keystore");
+        cfg.node["batch-poster"]["parent-chain-wallet"].pathname = "/home/user/l1keystore";
     }
     // Redis URLs
     if (cfg?.node?.["seq-coordinator"]) {
-        cfg.node["seq-coordinator"]["redis-url"] = "redis://localhost:6379";
+        cfg.node["seq-coordinator"]["redis-url"] = "redis://redis:6379";
     }
     if (cfg?.node?.["batch-poster"]) {
-        cfg.node["batch-poster"]["redis-url"] = "redis://localhost:6379";
+        cfg.node["batch-poster"]["redis-url"] = "redis://redis:6379";
     }
     // Block validator auth
     if (cfg?.node?.["block-validator"]?.["validation-server"]) {
-        cfg.node["block-validator"]["validation-server"].url = "ws://localhost:8949";
-        cfg.node["block-validator"]["validation-server"].jwtsecret = join("data/config/val_jwt.hex");
+        cfg.node["block-validator"]["validation-server"].url = "ws://127.0.0.1:8949";
+        cfg.node["block-validator"]["validation-server"].jwtsecret = containerPath("config/val_jwt.hex");
     }
     // Data availability parent chain URL
     if (cfg?.node?.["data-availability"]) {
-        cfg.node["data-availability"]["parent-chain-node-url"] = "ws://localhost:8546";
+        cfg.node["data-availability"]["parent-chain-node-url"] = "ws://geth:8546";
     }
     return cfg;
 }
