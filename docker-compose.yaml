@@ -651,7 +651,7 @@ services:
       - redis
 
   nethermind-l2:
-    image: nethermind-arbitrum:latest
+    image: nethermind.jfrog.io/core-oci-local-dev/nethermind-arbitrum:latest
     container_name: nethermind-arbitrum-local
     ports:
       - "20545:20545"
