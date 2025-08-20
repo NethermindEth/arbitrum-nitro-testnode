@@ -774,19 +774,21 @@ if $force_init; then
         docker compose run scripts redis-init --redundancy $redundantsequencers
     fi
 
-    # Generate local configs immediately after base configs are written
+    # Generate both Docker and native configs immediately after base configs are written
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    echo == Generating local configs for Docker services
+    echo == Generating Docker and native configs
     
-    if [ -f "./data/config/sequencer_config.json" ]; then
-        echo == Writing local sequencer config
-        docker compose run scripts write-local-sequencer-config --dir "$SCRIPT_DIR"
-    fi
+    echo == Writing Docker sequencer config
+    docker compose run scripts write-docker-sequencer-config --dir "$SCRIPT_DIR"
     
-    if [ -f "./data/config/sequencer_follower_config.json" ]; then
-        echo == Writing local follower config
-        docker compose run scripts write-local-follower-config --dir "$SCRIPT_DIR"
-    fi
+    echo == Writing Docker follower config
+    docker compose run scripts write-docker-follower-config --dir "$SCRIPT_DIR"
+    
+    echo == Writing native sequencer config
+    docker compose run scripts write-native-sequencer-config --dir "$SCRIPT_DIR"
+    
+    echo == Writing native follower config
+    docker compose run scripts write-native-follower-config --dir "$SCRIPT_DIR"
 
     echo == Starting sequencer
     PR_EXECUTION_MODE="${execution_mode}" docker compose up -d "$SEQUENCER_SERVICE"

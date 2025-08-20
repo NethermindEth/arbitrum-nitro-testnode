@@ -217,7 +217,7 @@ services:
       - "./data/config:/config"
       - "tokenbridge-data:/tokenbridge-data"
     command:
-      - --conf.file=/config/sequencer_config_local.json
+      - --conf.file=/config/sequencer_config_docker.json
       - --node.feed.output.enable
       - --node.feed.output.port=9642
       - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
@@ -248,7 +248,7 @@ services:
       - "./data/config:/config"
       - "tokenbridge-data:/tokenbridge-data"
     command:
-      - --conf.file=/config/sequencer_config_local.json
+      - --conf.file=/config/sequencer_config_docker.json
       - --node.feed.output.enable
       - --node.feed.output.port=9642
       - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
@@ -282,7 +282,7 @@ services:
       - "./data/l1keystore:/home/user/l1keystore"
       - "./data/config:/config"
     command:
-      - --conf.file=/config/sequencer_follower_config_local.json
+      - --conf.file=/config/sequencer_follower_config_docker.json
       - --http.api=net,web3,eth,txpool,debug
       - --http.port=8547
       - --ws.port=8548
@@ -312,14 +312,14 @@ services:
       - "./data/l1keystore:/home/user/l1keystore"
       - "./data/config:/config"
     command:
-      - --conf.file=/config/sequencer_follower_config_local.json
+      - --conf.file=/config/sequencer_follower_config_docker.json
       - --http.api=net,web3,eth,txpool,debug
       - --http.port=8547
       - --ws.port=8548
 
   follower-nethermind-external:
     # Sequencer follower with external Nethermind compare execution (connects to host machine)
-    image: daniilankushin/nitro:latest
+    image: nitro-optimized:latest
     depends_on:
       geth:
         condition: service_started
@@ -342,7 +342,7 @@ services:
       - "./data/l1keystore:/home/user/l1keystore"
       - "./data/config:/config"
     command:
-      - --conf.file=/config/sequencer_follower_config_local.json
+      - --conf.file=/config/sequencer_follower_config_docker.json
       - --http.api=net,web3,eth,txpool,debug
       - --http.port=8547
       - --ws.port=8548
