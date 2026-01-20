@@ -203,6 +203,7 @@ services:
   sequencer:
     # Main vanilla sequencer (no compare execution, uses internal geth)
     image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
+    platform: linux/amd64
     depends_on:
       geth:
         condition: service_started
@@ -229,6 +230,7 @@ services:
   sequencer-nethermind:
     # Sequencer using Nethermind as compare execution layer
     image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
+    platform: linux/amd64
     depends_on:
       geth:
         condition: service_started
@@ -264,6 +266,7 @@ services:
   follower:
     # Vanilla sequencer follower (no compare execution)
     image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
+    platform: linux/amd64
     depends_on:
       geth:
         condition: service_started
@@ -290,6 +293,7 @@ services:
   follower-nethermind:
     # Sequencer follower with Nethermind compare execution
     image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
+    platform: linux/amd64
     depends_on:
       geth:
         condition: service_started
@@ -320,6 +324,7 @@ services:
   follower-nethermind-external:
     # Sequencer follower with external Nethermind compare execution (connects to host machine)
     image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
+    platform: linux/amd64
     depends_on:
       geth:
         condition: service_started
@@ -652,8 +657,8 @@ services:
 
   nethermind-l2:
     image: nethermind.jfrog.io/core-oci-local-dev/nethermind-arbitrum:latest
+    platform: linux/amd64
     container_name: nethermind-arbitrum-local
-    platform: linux/arm64
     ports:
       - "20545:20545"
       - "20551:20551"
