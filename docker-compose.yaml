@@ -202,8 +202,8 @@ services:
 
   sequencer:
     # Main vanilla sequencer (no compare execution, uses internal geth)
-    image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
-    platform: linux/amd64
+    image: nitro-node-dev:latest
+    pull_policy: never
     depends_on:
       geth:
         condition: service_started
@@ -229,8 +229,8 @@ services:
 
   sequencer-nethermind:
     # Sequencer using Nethermind as compare execution layer
-    image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
-    platform: linux/amd64
+    image: nitro-node-dev:latest
+    pull_policy: never
     depends_on:
       geth:
         condition: service_started
@@ -265,8 +265,8 @@ services:
 
   follower:
     # Vanilla sequencer follower (no compare execution)
-    image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
-    platform: linux/amd64
+    image: nitro-node-dev:latest
+    pull_policy: never
     depends_on:
       geth:
         condition: service_started
@@ -292,8 +292,8 @@ services:
 
   follower-nethermind:
     # Sequencer follower with Nethermind compare execution
-    image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
-    platform: linux/amd64
+    image: nitro-node-dev:latest
+    pull_policy: never
     depends_on:
       geth:
         condition: service_started
@@ -323,8 +323,8 @@ services:
 
   follower-nethermind-external:
     # Sequencer follower with external Nethermind compare execution (connects to host machine)
-    image: nethermind.jfrog.io/core-oci-local-dev/arbitrum-nitro:latest
-    platform: linux/amd64
+    image: nitro-node-dev:latest
+    pull_policy: never
     depends_on:
       geth:
         condition: service_started
@@ -354,7 +354,8 @@ services:
 
   sequencer_b:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:8747:8547"
@@ -372,7 +373,8 @@ services:
 
   sequencer_c:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:8747:8547"
@@ -390,7 +392,8 @@ services:
 
   sequencer_d:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:8847:8547"
@@ -408,7 +411,8 @@ services:
 
   staker-unsafe:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:8047:8547"
@@ -425,7 +429,8 @@ services:
 
   poster:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:8147:8547"
@@ -441,7 +446,8 @@ services:
 
   poster_b:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:9147:8547"
@@ -457,7 +463,8 @@ services:
 
   poster_c:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:9247:8547"
@@ -473,7 +480,8 @@ services:
 
   validator:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:8247:8547"
@@ -489,7 +497,8 @@ services:
 
   l3node:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro
     ports:
       - "127.0.0.1:3347:3347"
@@ -505,7 +514,8 @@ services:
 
   validation_node:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/nitro-val
     ports:
       - "127.0.0.1:8949:8549"
@@ -522,7 +532,8 @@ services:
 
   relay:
     pid: host
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/relay
     ports:
       - "127.0.0.1:9652:9652"
@@ -577,7 +588,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   datool:
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/datool
     volumes:
       - "./data/config:/config"
@@ -588,7 +600,8 @@ services:
 
   das-committee-a:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/daserver
     ports:
       - "127.0.0.1:9876:9876"
@@ -601,7 +614,8 @@ services:
 
   das-committee-b:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/daserver
     ports:
       - "127.0.0.1:8876:9876"
@@ -614,7 +628,8 @@ services:
 
   das-mirror:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/daserver
     ports:
       - "127.0.0.1:7877:9877"
@@ -626,7 +641,8 @@ services:
 
   timeboost-auctioneer:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/autonomous-auctioneer
     volumes:
       - "config:/config"
@@ -639,7 +655,8 @@ services:
 
   timeboost-bid-validator:
     pid: host # allow debugging
-    image: nitro-node-dev-testnode
+    image: nitro-node-dev:latest
+    pull_policy: never
     entrypoint: /usr/local/bin/autonomous-auctioneer
     ports:
       - "127.0.0.1:9372:8547"

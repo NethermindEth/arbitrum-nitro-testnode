@@ -257,16 +257,15 @@ function writeConfigs(argv: any) {
                     "jwtsecret": valJwtSecret,
                 }
             },
-            "data-availability": {
+            "da": {
+              "anytrust": {
                 "enable": argv.anytrust,
                 "rpc-aggregator": dasBackendsJsonConfig(argv),
                 "rest-aggregator": {
                     "enable": true,
                     "urls": ["http://das-mirror:9877"],
                 },
-                // TODO Fix das config to not need this redundant config
-                "parent-chain-node-url": argv.l1url,
-                "sequencer-inbox-address": "not_set"
+              }
             }
         },
         "execution": {
@@ -288,8 +287,6 @@ function writeConfigs(argv: any) {
         },
     }
 
-    baseConfig.node["data-availability"]["sequencer-inbox-address"] = ethers.utils.hexlify(getChainInfo()[0]["rollup"]["sequencer-inbox"]);
-
     const baseConfJSON = JSON.stringify(baseConfig)
 
     if (argv.simple) {
@@ -304,7 +301,7 @@ function writeConfigs(argv: any) {
         simpleConfig.node["batch-poster"]["redis-url"] = ""
         simpleConfig.execution["sequencer"].enable = true
         if (argv.anytrust) {
-            simpleConfig.node["data-availability"]["rpc-aggregator"].enable = true
+            simpleConfig.node["da"]["anytrust"]["rpc-aggregator"].enable = true
         }
         fs.writeFileSync(path.join(consts.configpath, "sequencer_config.json"), JSON.stringify(simpleConfig))
     } else {
@@ -336,7 +333,7 @@ function writeConfigs(argv: any) {
         posterConfig.node["seq-coordinator"].enable = true
         posterConfig.node["batch-poster"].enable = true
         if (argv.anytrust) {
-            posterConfig.node["data-availability"]["rpc-aggregator"].enable = true
+            posterConfig.node["da"]["anytrust"]["rpc-aggregator"].enable = true
         }
         fs.writeFileSync(path.join(consts.configpath, "poster_config.json"), JSON.stringify(posterConfig))
     }
@@ -462,17 +459,21 @@ function writeL3ChainConfig(argv: any) {
 function writeL2DASCommitteeConfig(argv: any) {
     const sequencerInboxAddr = ethers.utils.hexlify(getChainInfo()[0]["rollup"]["sequencer-inbox"]);
     const l2DASCommitteeConfig = {
-        "data-availability": {
-            "key": {
-                "key-dir": "/das/keys"
+        "da": {
+            "parent-chain": {
+                "node-url": sequencerInboxAddr,
+                "sequencer-inbox-address": argv.l1url,
             },
-            "local-file-storage": {
-                "data-dir": "/das/data",
-                "enable": true,
-                "enable-expiry": true
-            },
-            "sequencer-inbox-address": sequencerInboxAddr,
-            "parent-chain-node-url": argv.l1url
+            "anytrust": {
+                "key": {
+                    "key-dir": "/das/keys"
+                },
+                "local-file-storage": {
+                    "data-dir": "/das/data",
+                    "enable": true,
+                    "enable-expiry": true
+                },
+            }
         },
         "enable-rest": true,
         "enable-rpc": true,
@@ -489,23 +490,27 @@ function writeL2DASCommitteeConfig(argv: any) {
 
 function writeL2DASMirrorConfig(argv: any, sequencerInboxAddr: string) {
     const l2DASMirrorConfig = {
-        "data-availability": {
-            "local-file-storage": {
-                "data-dir": "/das/data",
-                "enable": true,
-                "enable-expiry": false
+        "da": {
+            "parent-chain": {
+                "node-url": argv.l1url,
+                "sequencer-inbox-address": sequencerInboxAddr
             },
-            "sequencer-inbox-address": sequencerInboxAddr,
-            "parent-chain-node-url": argv.l1url,
-            "rest-aggregator": {
-                "enable": true,
-                "sync-to-storage": {
-                    "eager": false,
-                    "ignore-write-errors": false,
-                    "state-dir": "/das/metadata",
-                    "sync-expired-data": true
+            "anytrust": {
+                "local-file-storage": {
+                    "data-dir": "/das/data",
+                    "enable": true,
+                    "enable-expiry": false
                 },
-                "urls": ["http://das-committee-a:9877", "http://das-committee-b:9877"],
+                "rest-aggregator": {
+                    "enable": true,
+                    "sync-to-storage": {
+                        "eager": false,
+                        "ignore-write-errors": false,
+                        "state-dir": "/das/metadata",
+                        "sync-expired-data": true
+                    },
+                    "urls": ["http://das-committee-a:9877", "http://das-committee-b:9877"],
+                },
             }
         },
         "enable-rest": true,
@@ -717,7 +722,7 @@ function applyDockerOverrides(cfg: any, baseDir: string): any {
     const join = (...p: string[]) => path.join(baseDir, ...p);
     // Use container paths for Docker services instead of host paths
     const containerPath = (relativePath: string) => path.posix.join("/", relativePath);
-    
+
     // Parent chain and chain info
     if (cfg?.["parent-chain"]?.connection) {
         cfg["parent-chain"].connection.url = "ws://geth:8546";
@@ -744,16 +749,12 @@ function applyDockerOverrides(cfg: any, baseDir: string): any {
         cfg.node["block-validator"]["validation-server"].url = "ws://127.0.0.1:8949";
         cfg.node["block-validator"]["validation-server"].jwtsecret = containerPath("config/val_jwt.hex");
     }
-    // Data availability parent chain URL
-    if (cfg?.node?.["data-availability"]) {
-        cfg.node["data-availability"]["parent-chain-node-url"] = "ws://geth:8546";
-    }
     return cfg;
 }
 
 function applyNativeOverrides(cfg: any, baseDir: string): any {
     // For host execution, use relative paths from arbitrum-nitro directory
-    
+
     // Parent chain and chain info for host execution
     if (cfg?.["parent-chain"]?.connection) {
         cfg["parent-chain"].connection.url = "ws://localhost:8546";
@@ -780,10 +781,6 @@ function applyNativeOverrides(cfg: any, baseDir: string): any {
         cfg.node["block-validator"]["validation-server"].url = "ws://localhost:8949";
         cfg.node["block-validator"]["validation-server"].jwtsecret = "../arbitrum-nitro-testnode/data/config/val_jwt.hex";
     }
-    // Data availability parent chain URL for host execution
-    if (cfg?.node?.["data-availability"]) {
-        cfg.node["data-availability"]["parent-chain-node-url"] = "ws://localhost:8546";
-    }
     return cfg;
 }
 
@@ -802,7 +799,7 @@ export const writeDockerSequencerConfigCommand = {
 };
 
 export const writeDockerFollowerConfigCommand = {
-    command: "write-docker-follower-config", 
+    command: "write-docker-follower-config",
     describe: "writes Docker follower config (sequencer_follower_config_docker.json)",
     builder: { dir: { string: true, demandOption: true } },
     handler: (argv: any) => {

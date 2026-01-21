@@ -2,7 +2,7 @@
 
 set -eu
 
-NITRO_NODE_VERSION=offchainlabs/nitro-node:v3.6.7-a7c9f1e
+NITRO_NODE_VERSION=nitro-node-dev:latest
 BLOCKSCOUT_VERSION=offchainlabs/blockscout:v1.1.0-0e716c8
 
 # nitro-contract workaround for testnode
@@ -471,13 +471,6 @@ if $build_utils; then
   fi
 fi
 
-if $dev_nitro; then
-  docker tag nitro-node-dev:latest nitro-node-dev-testnode
-else
-  docker pull $NITRO_NODE_VERSION
-  docker tag $NITRO_NODE_VERSION nitro-node-dev-testnode
-fi
-
 if $blockscout; then
   if $dev_blockscout; then
     docker tag blockscout:latest blockscout-testnode
@@ -535,7 +528,7 @@ if $force_init; then
 
     echo == Waiting for geth to sync
     docker compose run scripts wait-for-sync --url http://geth:8545
-    
+
     # Start Nethermind if follower will use it (but not for external mode)
     if ($follower_nethermind || $sequencer_nethermind) && ! $follower_nethermind_external; then
         echo == Initializing nethermind-l2 volume permissions
@@ -546,7 +539,7 @@ if $force_init; then
         docker compose run --rm --user root --entrypoint sh nethermind-l2 -c "mkdir -p /app/nethermind_db && chown -R 999:999 /app/nethermind_db"
         echo == Starting nethermind-l2
         docker compose up --wait nethermind-l2
-        
+
         echo == Waiting for nethermind-l2 to be ready
         # Wait for nethermind-l2 to be responsive - check basic RPC availability
         for i in {1..30}; do
@@ -561,7 +554,7 @@ if $force_init; then
         done
         echo
     fi
-    
+
     # Display configuration summary
     if $sequencer_nethermind; then
         echo == Sequencer will use Nethermind as external EL \(DelayedSequencer unsupported\)
@@ -777,16 +770,16 @@ if $force_init; then
     # Generate both Docker and native configs immediately after base configs are written
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     echo == Generating Docker and native configs
-    
+
     echo == Writing Docker sequencer config
     docker compose run scripts write-docker-sequencer-config --dir "$SCRIPT_DIR"
-    
+
     echo == Writing Docker follower config
     docker compose run scripts write-docker-follower-config --dir "$SCRIPT_DIR"
-    
+
     echo == Writing native sequencer config
     docker compose run scripts write-native-sequencer-config --dir "$SCRIPT_DIR"
-    
+
     echo == Writing native follower config
     docker compose run scripts write-native-follower-config --dir "$SCRIPT_DIR"
 
