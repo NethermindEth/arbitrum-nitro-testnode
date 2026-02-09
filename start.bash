@@ -939,3 +939,21 @@ if $run; then
 
     docker compose up $UP_FLAG $NODES
 fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ -f "./data/config/sequencer_follower_config.json" ]; then
+    echo "== Writing local sequencer config"
+    jq --arg dir "$SCRIPT_DIR" '
+        .["parent-chain"].connection.url = "ws://localhost:8546" |
+        .chain["info-files"] = [$dir + "/data/config/l2_chain_info.json"] |
+        .node.staker["parent-chain-wallet"].pathname = $dir + "/data/l1keystore" |
+        .node["seq-coordinator"]["redis-url"] = "redis://localhost:6379" |
+        .node["batch-poster"]["parent-chain-wallet"].pathname = $dir + "/data/l1keystore" |
+        .node["batch-poster"]["redis-url"] = "redis://localhost:6379" |
+        .node["block-validator"]["validation-server"].url = "ws://localhost:8949" |
+        .node["block-validator"]["validation-server"].jwtsecret = $dir + "/data/config/val_jwt.hex"
+    ' ./data/config/sequencer_follower_config.json > ./data/config/sequencer_follower_config_local.json
+else
+    echo "Warning: ./data/config/sequencer_follower_config.json does not exist. Skipping sequencer config update."
+fi
