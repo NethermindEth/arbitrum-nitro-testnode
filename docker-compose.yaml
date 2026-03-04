@@ -20,6 +20,7 @@ services:
     env_file:
       - ./blockscout/nitro.env
     environment:
+      PORT: 4000
       ETHEREUM_JSONRPC_VARIANT: "geth"
       ETHEREUM_JSONRPC_HTTP_URL: http://host.docker.internal:8547/
       ETHEREUM_JSONRPC_TRACE_URL: http://host.docker.internal:8547/
@@ -27,7 +28,7 @@ services:
       DATABASE_URL: postgresql://postgres:@postgres:5432/blockscout
       ECTO_USE_SSL: "false"
     ports:
-      - "127.0.0.1:4000:4000"
+      - "127.0.0.1:4004:4000"
 
   postgres:
     image: postgres:13.6
@@ -62,6 +63,7 @@ services:
     env_file:
       - ./blockscout/nitro.env
     environment:
+      PORT: 4001
       ETHEREUM_JSONRPC_VARIANT: "nethermind"
       ETHEREUM_JSONRPC_HTTP_URL: http://host.docker.internal:20545/
       ETHEREUM_JSONRPC_TRACE_URL: http://host.docker.internal:20545/
@@ -73,7 +75,7 @@ services:
       # INDEXER_EMPTY_BLOCKS_SANITIZER_BATCH_SIZE: 1
       # INDEXER_CATCHUP_BLOCKS_BATCH_SIZE: 1
     ports:
-      - "127.0.0.1:4001:4000"
+      - "127.0.0.1:4001:4001"
 
   postgres-neth:
     image: postgres:13.6
@@ -645,9 +647,9 @@ services:
     pull_policy: never
     entrypoint: /usr/local/bin/autonomous-auctioneer
     volumes:
-      - "config:/config"
+      - "./data/config:/config"
       - "timeboost-auctioneer-data:/data"
-      - "l1keystore:/home/user/l1keystore"
+      - "./data/l1keystore:/home/user/l1keystore"
     command:
       - --conf.file=/config/autonomous_auctioneer_config.json
     depends_on:
@@ -661,7 +663,7 @@ services:
     ports:
       - "127.0.0.1:9372:8547"
     volumes:
-      - "config:/config"
+      - "./data/config:/config"
     command:
       - --conf.file=/config/bid_validator_config.json
       - --http.addr=0.0.0.0

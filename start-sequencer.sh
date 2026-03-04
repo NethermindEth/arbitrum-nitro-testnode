@@ -33,7 +33,7 @@ devprivkey=b6b15c8cb491557369f3c7d2c287b053eb229daa9c22138887752191c9520659
 l1chainid=1337
 SEQUENCER_SERVICE="sequencer"
 INITIAL_SEQ_NODES="sequencer"
-NODES="sequencer redis poster staker-unsafe blockscout"
+NODES="sequencer redis poster staker-unsafe blockscout timeboost-auctioneer timeboost-bid-validator"
 
 # === WebSocket check function (from start.bash:638-752) ===
 # Sequencer sometimes fails to start WS on first attempt; this retries.
@@ -239,6 +239,37 @@ echo == Funding l2 funnel and dev key
 docker compose up --wait $INITIAL_SEQ_NODES
 docker compose run scripts bridge-funds --ethamount 100000 --wait
 docker compose run scripts send-l2 --ethamount 100 --to l2owner --wait
+
+echo == Setting up Timeboost
+docker compose run scripts send-l2 --ethamount 100 --to auctioneer --wait
+biddingTokenAddress=$(docker compose run scripts create-erc20 --deployer auctioneer | tail -n 1 | awk '{ print $NF }')
+auctionContractAddress=$(docker compose run scripts deploy-express-lane-auction --bidding-token $biddingTokenAddress | tail -n 1 | awk '{ print $NF }')
+auctioneerAddress=$(docker compose run scripts print-address --account auctioneer | tail -n1 | tr -d '\r\n')
+echo "== Bidding token: $biddingTokenAddress  Auction contract: $auctionContractAddress  Auctioneer: $auctioneerAddress"
+docker compose run --rm scripts write-timeboost-configs --auction-contract $auctionContractAddress --auctioneer-address $auctioneerAddress
+docker compose run --rm --user root --entrypoint sh timeboost-auctioneer -c "chown -R 1000:1000 /data"
+docker compose run scripts send-l2 --ethamount 10 --to user_alice --wait
+docker compose run scripts send-l2 --ethamount 10 --to user_bob --wait
+docker compose run scripts transfer-erc20 --token $biddingTokenAddress --amount 10000 --from auctioneer --to user_alice
+docker compose run scripts transfer-erc20 --token $biddingTokenAddress --amount 10000 --from auctioneer --to user_bob
+DOCKER_CONFIG="$SCRIPT_DIR/data/config/sequencer_config_docker.json"
+jq --arg addr "$auctionContractAddress" --arg auctioneer "$auctioneerAddress" \
+  '.execution.sequencer.timeboost = {"enable": true, "auction-contract-address": $addr, "auctioneer-address": $auctioneer, "redis-url": "redis://redis:6379"}' \
+  "$DOCKER_CONFIG" > "$DOCKER_CONFIG.tmp" && mv "$DOCKER_CONFIG.tmp" "$DOCKER_CONFIG"
+echo "  Updated $DOCKER_CONFIG with timeboost settings"
+docker compose restart $INITIAL_SEQ_NODES
+
+echo == Updating Nethermind and Nitro configs with new auction contract address
+NETHERMIND_CONFIG="/Volumes/Intenso/nethermindProjects/nethermind-arbitrum/src/Nethermind.Arbitrum/Properties/configs/arbitrum-local-sequencer.json"
+jq --arg addr "$auctionContractAddress" --arg auctioneer "$auctioneerAddress" \
+  '.Arbitrum.TimeboostAuctionContractAddress = $addr | .Arbitrum.TimeboostAuctioneerAddress = $auctioneer' \
+  "$NETHERMIND_CONFIG" > "$NETHERMIND_CONFIG.tmp" && mv "$NETHERMIND_CONFIG.tmp" "$NETHERMIND_CONFIG"
+echo "  Updated $NETHERMIND_CONFIG"
+
+NITRO_MAKEFILE="/Volumes/Intenso/nethermindProjects/nitro-pavlo-sequencer/Makefile"
+sed -i '' "s|--execution\.sequencer\.timeboost\.auction-contract-address=0x[0-9a-fA-F]*|--execution.sequencer.timeboost.auction-contract-address=$auctionContractAddress|" "$NITRO_MAKEFILE"
+sed -i '' "s|--execution\.sequencer\.timeboost\.auctioneer-address=0x[0-9a-fA-F]*|--execution.sequencer.timeboost.auctioneer-address=$auctioneerAddress|" "$NITRO_MAKEFILE"
+echo "  Updated $NITRO_MAKEFILE"
 
 echo == Deploy CacheManager on L2
 docker compose run -e CHILD_CHAIN_RPC="http://sequencer:8547" -e CHAIN_OWNER_PRIVKEY=$l2ownerKey rollupcreator deploy-cachemanager-testnode

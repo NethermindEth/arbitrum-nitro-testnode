@@ -560,6 +560,11 @@ export const writeTimeboostConfigsCommand = {
       describe: "auction contract address",
       demandOption: true
     },
+    "auctioneer-address": {
+      string: true,
+      describe: "auctioneer wallet address",
+      demandOption: true
+    },
   },
   handler: (argv: any) => {
     writeAutonomousAuctioneerConfig(argv)
@@ -596,8 +601,9 @@ function writeBidValidatorConfig(argv: any) {
     },
     "bid-validator": {
       "auction-contract-address": argv.auctionContract,
+      "auctioneer-address": argv.auctioneerAddress,
       "redis-url": "redis://redis:6379",
-      "sequencer-endpoint": "http://sequencer:8547"
+      "rpc-endpoint": "http://sequencer:8547"
     }
   }
   const bidValidatorConfigJSON = JSON.stringify(bidValidatorConfig)
